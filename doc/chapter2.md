@@ -82,3 +82,61 @@
 
 * 그래이들 혹은 메이븐을 개발자 로컬환경 CI 서버에 설치하지 않고 프로젝트에 포함시켜 배포
 * 프로젝트에 mvnw 파일이 레퍼다.
+
+## 코드 구조
+
+* 특별하게 어떤 식으로 작성하라는 방식은 없음
+* 아래 규칙은 몇 가지 도움이 될만한 가이드이다.
+
+### 기본 페키지 이용
+
+* 기본 페키지로 간주되는 곳에 클래스를 작성하는 것은 피하자.
+* @ComponentScan, @EntityScan, @SpringBootApplication 애너테이션을 사용할 경우 모든 jar에서 모든 클래스를 탐색하기 때문에 망한다.
+
+### 애플리케이션 메인 클래스 위치
+
+* 최상위 패키지에 위치하는 것이 좋다.
+* @EnableAutoConfiguration 처럼 애플리케이션 구성과 관련된 애너테이션의 경우가 해당
+* Scan 애너테이션의 경우 기본적으로 해당 페키지 내에 있는 서브 페키지 들을 탐색하기 때문에 따로 설정이 필요 없다.
+* 다른 위치에  둘 경우 scanBasePackages 를 등록시켜 줘야 한다.
+* 나중에 전문가가 되면 머 마음대로 해되 되지만 최상위 패키지에 두는게 여러가지고 편하다.
+
+## 구성 클래스
+
+* 스프링 부트는 자바기반 구성을 선호한다.
+* 물론 XML을 통해서 구성을 하는 것도 가능하지만 하지 말자.
+* @Configuration 으로 선언된 클래스에 main() 메서드를 정의해두는 것이 좋은 방법
+
+### 구성 클래스 불러오기
+
+* 여러 개의 구성 클래스로 분리해서 사용할 경우 @import 어노테이션을 이용해서 불어올 수 있다.
+```java
+@Configuration
+@Import(EnableWebMvcConfiguration.class)
+```
+* 다른 방법은 @ComponentScan 을 사용하면 @Configuration 을 포함한 모든 스프링 컴포넌트를 사용할 수 있다.
+
+### XML 구성 불러오기
+
+* @ImportResource 애너테이션을 사용하면 된다.
+
+## 자동 구성
+
+* 추가된 의존성을 기반으로 애플리케이션을 자동구성하는 기능
+* 자동구성 기능을 활성화하려면 @Configuration 이 선언된 클래스에 @EnableAutoConfiguration 혹은 @SpringBootApplication을 추가
+* @SpringBootApplication 은 @EnableAutoConfiguration, @SpringBootConfiguration, @ComponentScan 을 합쳐놓은 것
+
+### 자동구성 대체하기
+
+* 비침투적이어서 자동구성된 특정 부분을 재정의하고 시작하는 것이 가능
+* 자동 구성이 무엇인지 찾아보려면 --debug 를 활성화하면 된다.
+
+### 특정 자동구성 비활성화하기
+
+* @EnableAutoConfiguration 의 exclude 속성을 이용해서 비활성화 할 수 있다.
+* excludeName 속성을 이용하면 지금은 없지만 나중에 추가되어 현재 프로젝트에 영향을 줄 수 있는 자동구성을 제외할 수 있다.
+* application.yml의 spring.autoconfigure.exclude 속성을 통해서도 제외가 가능
+
+## 스프링 빈과 의존성 주입
+
+
