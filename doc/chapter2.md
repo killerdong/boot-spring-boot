@@ -139,4 +139,104 @@
 
 ## 스프링 빈과 의존성 주입
 
+* 스프링 프레임워크 표준기술을 사용하여 Bean과 의존성 주입을 자유롭게 사용할 수 있다.
+* @ComponentScan 사용해서 빈을 찾고, @Autowire 를 선언하여 생성자 의존성 주입 방식을 사용
+* 최상위 패키지에 애플리케이션을 등록할 경우 모든 애플리케이션 컴포넌트룰 찾아서 자동 등록
+* 특정 필드에 `final` 을 표시해두면 빈이 생성된 이후 변경되지 않는 것을 **명시적**으로 알려주는 역할
+* 생성자가 1개인 경우 @Autowired 를 하지 않아서 생성자 주입이 가능하다.
 
+## @SpringBootApplication 애너테이션 사용
+
+* 예전에 @Configuration, @EnableAutoConfiguration, @ComponentScan 을 따로 선언
+* 1.2.0 버전 이후 부터 위 3개를 합쳐서 @SpringBootApplication 으로 선언이 가능
+* 스프링 부트 애플리케이션에서는 위 어노테이션을 **하나만 사용해야 한다.**
+
+## 애플리케이션 실행하기
+
+* 애플리케이션 컨테이너를 함께 JAR로 패키징 할 경우 어디서나 애플리케이션을 실행할 수 있는 특징을 가진다.
+
+### IDE 에서 실행하기
+
+* IntelliJ 의 경우 자동으로 구성(위에 버튼 클릭)
+
+### 패키징된 애플리케이션 실행하기
+
+```
+java -jar build/lib/boot-spring-boot-1.0.0.RELEASE.jar
+```
+
+### 그레이들 플러그인으로 실행하기
+
+```
+./gradlew bootRun
+
+export JAVA_OPTS=Xmx1024m -XX:MaxPermSize=128M
+```
+
+### 메이븐 플러그인으로 실행하기
+
+```
+./mvnw spring-boot:run
+```
+
+## 스프링 부트 개발자도구
+
+* 애플리케이션 개발경험을 향상시키는데 도움이 되는 도구를 포함
+* 개발자 도구를 포함하기 위해서는 모듈 의존성을 빌드 스크립트에 추가하면 된다.
+* 개발자 도구의 경후 패키징된 애플리케이션이 실행될 때 자동으로 비활성화
+
+### 속성 기본 정의
+
+* 운영에는 필요하나 개발에는 불편한 속성들을 자동으로 비활성화(캐싱기능 등등)
+* 개발자도구에서 비활성화 처리하는 목록(https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot-devtools/src/main/java/org/springframework/boot/devtools/env/DevToolsPropertyDefaultsPostProcessor.java)
+
+### 자동 재시작
+
+* 클래스 패스 내에 파일이 변경될 때 자동으로 재시작
+
+#### 재시작 트리거
+
+* 클래스 패스를 지켜보다가 클래스 패스가 갱신되면 재시작 트리거가 동작
+* 인텔리J의 경우 프로젝트를 빌드할 때 발생
+* 재시작 동안에는 애플리케이션 컨텍스트 셧다운 훅을 잠궈둔다. 셧 다운 훅을 비활성화 할 경우 해당 기능 사용 불가
+* 클래스 패스가 변경되었을 때 spring-boot, spring-boot-devtools, spring-boot-autoconfigure, spring-boot-actuator
+, spring-boot-starter 같은 spring-boot 관련 프로젝트를 제외하고 재시작되는 진입점을 결정
+
+#### 재시작 vs 재적재
+
+* 구매는 머하니 그냥 기본으로
+* 클래스가 변경되지 않았을 때 기본 클래스로더에 적재
+* 클래스가 변경되면 재시작 클래스로더에 적재
+* 애플리케이션이 재시작될 때 기존 재시작 클래스로더를 없애고 새로운 것을 만든다.
+
+#### 재시작 대상 제외
+
+* 리소스 같은 경우는 변경 사항이 발생하더라도 재시작할 필요가 없다.
+* 이런 것을 제외하기 위해서는 `spring.devtools.restart.exclude` 속성에서 설정 가능
+```
+spring.devtools.restart.exclude: static/**, public/**
+```
+
+#### 재시작 감시경로 추가
+
+* 클래스 패스외에 내용 변경 시 재시작이 필요한 경우에 설정
+* `spring.devtools.restart.addtional-exclude` 속성에서 설정
+
+#### 재시작 비활성화
+
+* 재시작 기능을 사용하고 싶지 않은 경우
+* `spring.devtools.restart.enabled` 속성에서 설정
+* main에 System.setProperty 를 사용해서도 설정 가능
+
+#### 트리거 파일 사용
+
+* 특정 파일이 변경될 때 자동으로 재시작되도록 하도록 설정
+* `spring.devtools.restart.trigger-file` 속성 설정
+
+### 전역 설정
+
+* 홈디렉토리($HOME)에 `.spring-boot-devtools.properties` 이름의 파일 생성하면 전역으로 개발자도구를 설정할 수 있음
+
+## 출시를 위한 애플리케이션 패키징
+
+뒤에서 보자
