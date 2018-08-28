@@ -1,0 +1,3 @@
+org.springframework.context.ApplicationListener=\
+com.otawang.bootspringboot.listener.ApplicationStartingEventListener,\
+com.otawang.bootspringboot.listener.ApplicationReadyEventListener
